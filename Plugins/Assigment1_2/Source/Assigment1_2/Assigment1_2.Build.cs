@@ -38,9 +38,6 @@ public class Assigment1_2 : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-                 "InputCore" ,
-                "UMG",
-                "EnhancedInput"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
