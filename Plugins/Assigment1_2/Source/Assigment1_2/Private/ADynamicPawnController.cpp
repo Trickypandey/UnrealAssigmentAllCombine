@@ -25,7 +25,7 @@ void AADynamicPawnController::SpawnCharacter()
 
 	if (MyDataTable)
 	{
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "jagfdga");
+
 		
 		TArray<FName> RowNames = MyDataTable->GetRowNames();
 
