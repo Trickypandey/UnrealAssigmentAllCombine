@@ -6,71 +6,69 @@
 #include "VerticalRailActor.h"
 #include "GameFramework/Actor.h"
 #include "Components/SplineComponent.h"
-#include "Components/SplineMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "FenceMeshActor.generated.h"
 
 USTRUCT(BlueprintType)
 struct FFenceProperties
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
-	float Length;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
+    float Length;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
-	float Width;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
+    float Width;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
-	float Height;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
+    float Height;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
-	float Spacing;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
+    float Spacing;
 };
 
 UCLASS()
 class ASSIGNMENT5_API AFenceMeshActor : public AActor
 {
-	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	AFenceMeshActor();
+    GENERATED_BODY()
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	void AttachMesh(const FVector& Location, const FRotator& Rotation);
-	virtual void OnConstruction(const FTransform& Transform) override;
-	void AttachCuboidMeshes();
-	void ClearPreviousAttachedMesh();
+public:
+    // Sets default values for this actor's properties
+    AFenceMeshActor();
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+protected:  
+    virtual void BeginPlay() override;
+    virtual void OnConstruction(const FTransform& Transform) override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
-	USceneComponent* SceneComponent;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
-	USplineComponent* Spline;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence")
-	FFenceProperties FenceProperties;
-
-	UPROPERTY()
-	TArray<USplineMeshComponent*> MeshComponents;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	UStaticMesh* Mesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence")
-	TSubclassOf<AVerticalRailActor> VerticalRailActorClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence")
-	FVector CuboidDimensions;
 private:
-	TArray<AActor*> AttachedMeshes;
-	//void AttachCuboidMeshes();
+    void ClearPreviousAttachedMesh();
+    void CreateHorizontalFence(const FVector& StartPos, const FVector& EndPos);
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    USceneComponent* SceneComponent;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+    USplineComponent* Spline;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
+    UStaticMesh* Mesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
+    UMaterialInterface* FenceMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
+    UStaticMesh* HorizontalFenceStaticMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
+    FFenceProperties FenceProperties;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
+    TSubclassOf<AVerticalRailActor> PillarActorClass;
+
+
+    UPROPERTY()
+    TArray<UStaticMeshComponent*> SplineMeshes;
+    UPROPERTY()
+    TArray<AVerticalRailActor*> SpawnedPillars;
 };

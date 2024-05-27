@@ -52,7 +52,7 @@ public:
 	UProceduralMeshComponent* ProceduralMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cylinder Properties")
-	int32 MHeight;
+	int32 MHeight = 180;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cylinder Properties")
 	float MRadius;
@@ -60,7 +60,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cylinder Properties")
 	int32 MSides;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cuboid Properties")
-	float MSide;
+	float MSide = 7.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Settings")
 	float TopMeshLerpValue;

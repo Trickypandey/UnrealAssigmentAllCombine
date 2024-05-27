@@ -15,6 +15,13 @@ AVerticalRailActor::AVerticalRailActor()
     SetRootComponent(ProceduralMesh);
 
     /*InitialPillarGeneration();*/
+
+    if (MSides < 3) // Ensure at least a triangle
+    {
+        MSides = 3;
+    }
+
+    InitialPillarGeneration();
  
 
 }
@@ -1204,4 +1211,3 @@ void AVerticalRailActor::GenerateCuboidMesh(float Width, float Depth, int32 Heig
     // Create the procedural mesh section
     ProceduralMesh->CreateMeshSection(Segment++, MVertices, MTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), false);
 }
-
