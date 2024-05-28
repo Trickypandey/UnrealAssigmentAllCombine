@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HorizontalProceduralMesh.h"
 #include "VerticalRailActor.h"
 #include "GameFramework/Actor.h"
 #include "Components/SplineComponent.h"
@@ -40,10 +41,13 @@ public:
 protected:  
     virtual void BeginPlay() override;
     virtual void OnConstruction(const FTransform& Transform) override;
+    void CreateStaticMeshes();
+    void SpawnPillarActors();
 
 private:
-    void ClearPreviousAttachedMesh();
+    void ClearPreviousAttachedMesh(bool Flag);
     void CreateHorizontalFence(const FVector& StartPos, const FVector& EndPos);
+    void ReplaceHorizontalMeshWithProceduralMesh();
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
     USceneComponent* SceneComponent;
@@ -66,9 +70,12 @@ private:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
     TSubclassOf<AVerticalRailActor> PillarActorClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
+    TSubclassOf<AHorizontalProceduralMesh> HorizontalActorClass;
+
 
     UPROPERTY()
     TArray<UStaticMeshComponent*> SplineMeshes;
     UPROPERTY()
-    TArray<AVerticalRailActor*> SpawnedPillars;
+    TArray<AActor*> SpawnedPillars;
 };

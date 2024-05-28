@@ -1173,11 +1173,22 @@ void AVerticalRailActor::GenerateCuboidMesh(float Width, float Depth, int32 Heig
     MVertices.Add(FVector(HalfWidth, -HalfDepth, 0));  // 1
     MVertices.Add(FVector(HalfWidth, HalfDepth, 0));   // 2
     MVertices.Add(FVector(-HalfWidth, HalfDepth, 0));  // 3
-    MVertices.Add(FVector(-HalfWidth, HalfDepth, HalfHeight));
-    MVertices.Add(FVector(-HalfWidth, -HalfDepth, HalfHeight)); // 0
-    MVertices.Add(FVector(HalfWidth, -HalfDepth, HalfHeight));  // 1
-    MVertices.Add(FVector(HalfWidth, HalfDepth,  HalfHeight));// 3
+    MVertices.Add(FVector(-HalfWidth, HalfDepth, HalfHeight)); // 4
+    MVertices.Add(FVector(-HalfWidth, -HalfDepth, HalfHeight)); // 5
+    MVertices.Add(FVector(HalfWidth, -HalfDepth, HalfHeight));  // 6
+    MVertices.Add(FVector(HalfWidth, HalfDepth,  HalfHeight));// 7
 
+
+
+    // FOR  RIGHT FENCE 
+ //   MVertices.Add(FVector(HalfWidth, -HalfDepth, 80));  // 8
+ //   MVertices.Add(FVector(HalfWidth, -HalfDepth, 60));  // 9
+ //   MVertices.Add(FVector(-HalfWidth, -HalfDepth, 80)); // 10
+ //   MVertices.Add(FVector(-HalfWidth, -HalfDepth, 60)); // 11
+	//MVertices.Add(FVector(HalfWidth, -HalfDepth - 50, 80));  // 12
+ //   MVertices.Add(FVector(HalfWidth, -HalfDepth - 50, 60));  // 13
+ //   MVertices.Add(FVector(-HalfWidth, -HalfDepth - 50, 80)); // 14
+ //   MVertices.Add(FVector(-HalfWidth, -HalfDepth - 50, 60)); // 15
     //Vertices.Add(FVector(-HalfWidth, -HalfDepth, HalfHeight));  // 4
     //Vertices.Add(FVector(HalfWidth, -HalfDepth, HalfHeight));   // 5
     //Vertices.Add(FVector(HalfWidth, HalfDepth, HalfHeight));    // 6
@@ -1208,6 +1219,28 @@ void AVerticalRailActor::GenerateCuboidMesh(float Width, float Depth, int32 Heig
     MTriangles.Add(1); MTriangles.Add(5); MTriangles.Add(6);
     MTriangles.Add(1); MTriangles.Add(6); MTriangles.Add(2);
 
+
+
+
+    // triangles for horizontal bar
+ //   MTriangles.Add(9); MTriangles.Add(13); MTriangles.Add(12);
+ //   MTriangles.Add(9); MTriangles.Add(12); MTriangles.Add(8);
+
+	//MTriangles.Add(13); MTriangles.Add(15); MTriangles.Add(14);
+ //   MTriangles.Add(13); MTriangles.Add(14); MTriangles.Add(12);
+
+	//MTriangles.Add(15); MTriangles.Add(11); MTriangles.Add(10);
+ //   MTriangles.Add(15); MTriangles.Add(10); MTriangles.Add(14);
+
+	//MTriangles.Add(12); MTriangles.Add(14); MTriangles.Add(10);
+ //   MTriangles.Add(12); MTriangles.Add(10); MTriangles.Add(8);
+
+	//MTriangles.Add(9); MTriangles.Add(11); MTriangles.Add(15);
+ //   MTriangles.Add(9); MTriangles.Add(15); MTriangles.Add(13);
+
+
+
     // Create the procedural mesh section
     ProceduralMesh->CreateMeshSection(Segment++, MVertices, MTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), false);
+    
 }

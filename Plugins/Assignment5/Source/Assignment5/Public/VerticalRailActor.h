@@ -48,6 +48,31 @@ public:
 	void GenerateCylinder(FVector Location, float Radius, float Height, int32 Segments);
 	void GenerateCuboidMesh(float Width, float Depth, int32 Height);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	UPROPERTY()
 	UProceduralMeshComponent* ProceduralMesh;
 
