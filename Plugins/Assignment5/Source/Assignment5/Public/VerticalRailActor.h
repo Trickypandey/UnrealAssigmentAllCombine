@@ -48,32 +48,7 @@ public:
 	void GenerateCylinder(FVector Location, float Radius, float Height, int32 Segments);
 	void GenerateCuboidMesh(float Width, float Depth, int32 Height);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	UProceduralMeshComponent* ProceduralMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cylinder Properties")

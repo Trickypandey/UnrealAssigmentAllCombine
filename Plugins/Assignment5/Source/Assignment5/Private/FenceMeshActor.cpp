@@ -15,18 +15,44 @@ AFenceMeshActor::AFenceMeshActor()
     FenceProperties.Width = 5.0f;
     FenceProperties.Height = 18.0f;
     FenceProperties.Spacing = 20.0f;
-    if (!DataTable_Fence)
+    static ConstructorHelpers::FObjectFinder<UDataTable> Fence_DT(TEXT("/Script/Engine.DataTable'/Assignment5/DataTable/DT_FenceType.DT_FenceType'"));
+    if (Fence_DT.Succeeded())
     {
-        static ConstructorHelpers::FObjectFinder<UDataTable> Fence_DT(TEXT("/Script/Engine.DataTable'/Assignment5/DataTable/BP_FenceType.BP_FenceType'"));
         DataTable_Fence = Fence_DT.Object;
     }
+
+    
 }
+
+void AFenceMeshActor::LoadFenceData()
+{
+    if (DataTable_Fence)
+    {
+        DataTable_Fence->GetAllRows<FFenceTypes>(TEXT("FenceDataTable"), FenceRows);
+
+        for (auto i  : FenceRows)
+        {
+	        if(i->Name ==  CurrentFenceType)
+	        {
+                CurrentFFenceTypes.FenceMesh = i->FenceMesh;
+                CurrentFFenceTypes.Fence = i->Fence;
+                CurrentFFenceTypes.Name = i->Name;
+                break;
+	        }
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DataTable_Fence is not set"));
+    }
+}
+
 
 void AFenceMeshActor::BeginPlay()
 {
     Super::BeginPlay();
 
-    if (!Spline || !Mesh)
+    if (!Spline || !CurrentFFenceTypes.FenceMesh)
     {
         UE_LOG(LogTemp, Warning, TEXT("Spline or PillarMesh is not set."));
         return;
@@ -41,7 +67,9 @@ void AFenceMeshActor::OnConstruction(const FTransform& Transform)
 {
     Super::OnConstruction(Transform);
 
-    if (!Spline || !Mesh)
+    LoadFenceData();
+
+    if (!Spline && !CurrentFFenceTypes.FenceMesh)
     {
         UE_LOG(LogTemp, Warning, TEXT("Spline or PillarMesh is not set."));
         return;
@@ -50,60 +78,6 @@ void AFenceMeshActor::OnConstruction(const FTransform& Transform)
     ClearPreviousAttachedMesh(true);
     CreateStaticMeshes();
 
-    //int NumberOfSplinePoints = Spline->GetNumberOfSplinePoints();
-
-    //for (int i = 1; i < NumberOfSplinePoints; i++)
-    //{
-    //    FVector StartPos = Spline->GetLocationAtSplinePoint(i - 1, ESplineCoordinateSpace::Local);
-    //    FVector EndPos = Spline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::Local);
-
-    //    FVector Direction = (EndPos - StartPos).GetSafeNormal();
-    //    float SegmentLength = FVector::Distance(StartPos, EndPos);
-    //    int NumberOfPillars = FMath::FloorToInt(SegmentLength / FenceProperties.Spacing);
-
-    //    // Create pillars
-    //    for (int j = 0; j <= NumberOfPillars; ++j)
-    //    {
-    //        FVector PillarPos = StartPos + Direction * (j * FenceProperties.Spacing);
-
-    //        //FString PillarName = FString::Printf(TEXT("Pillar_%d_%d"), i, j);
-    //        //UStaticMeshComponent* NewPillar = NewObject<UStaticMeshComponent>(this, FName(*PillarName));
-    //        //NewPillar->SetStaticMesh(Mesh);
-    //        //NewPillar->SetRelativeLocation(PillarPos);
-    //        //NewPillar->SetupAttachment(Spline);
-    //        //NewPillar->SetRelativeScale3D(FVector(0.15f)); // Adjust scale as needed
-    //        //NewPillar->SetMobility(EComponentMobility::Movable);
-    //        //if (FenceMaterial)
-    //        //{
-    //        //    NewPillar->SetMaterial(0, FenceMaterial);
-    //        //}
-    //        //NewPillar->RegisterComponent();
-    //        //SplineMeshes.Add(NewPillar);
-
-
-
-
-
-    //        FTransform PillarTransform;
-    //        PillarTransform.SetRotation(FQuat::Identity);
-    //        PillarTransform.SetScale3D(FVector(1)); // Adjust scale as needed
-
-    //        if (AVerticalRailActor* NewPillar = GetWorld()->SpawnActor<AVerticalRailActor>(PillarActorClass, PillarTransform))
-    //        {
-    //            NewPillar->RegisterAllComponents();
-    //            NewPillar->AttachToComponent(Spline, FAttachmentTransformRules::KeepRelativeTransform); // Attach to spline component
-    //            NewPillar->SetActorRelativeLocation(PillarPos); // Set the relative location
-    //            SpawnedPillars.Add(NewPillar);
-    //        }
-
-    //    }
-
-    //    // Create horizontal fences between pillars
-    //    if (HorizontalFenceStaticMesh)
-    //    {
-    //        CreateHorizontalFence(StartPos, EndPos);
-    //    }
-    //}
 }
 
 void AFenceMeshActor::CreateStaticMeshes()
@@ -119,17 +93,20 @@ void AFenceMeshActor::CreateStaticMeshes()
         float SegmentLength = FVector::Distance(StartPos, EndPos);
         int NumberOfPillars = FMath::FloorToInt(SegmentLength / FenceProperties.Spacing);
 
+        float InternalSpacing = SegmentLength / NumberOfPillars;
+        if (i != NumberOfSplinePoints - 1) NumberOfPillars--;
+
         // Create static mesh pillars
         for (int j = 0; j <= NumberOfPillars; ++j)
         {
-            FVector PillarPos = StartPos + Direction * (j * FenceProperties.Spacing);
+            FVector PillarPos = StartPos + Direction * (j * InternalSpacing);
 
             FString PillarName = FString::Printf(TEXT("Pillar_%d_%d"), i, j);
             UStaticMeshComponent* NewPillar = NewObject<UStaticMeshComponent>(this, FName(*PillarName));
-            NewPillar->SetStaticMesh(Mesh);
+            NewPillar->SetStaticMesh(CurrentFFenceTypes.FenceMesh);
             NewPillar->SetRelativeLocation(PillarPos);
             NewPillar->SetupAttachment(Spline);
-            NewPillar->SetRelativeScale3D(FVector(0.15f)); // Adjust scale as needed
+            NewPillar->SetRelativeScale3D(FVector(1.f)); // Adjust scale as needed
             NewPillar->SetMobility(EComponentMobility::Movable);
             if (FenceMaterial)
             {
@@ -161,17 +138,19 @@ void AFenceMeshActor::SpawnPillarActors()
         FVector Direction = (EndPos - StartPos).GetSafeNormal();
         float SegmentLength = FVector::Distance(StartPos, EndPos);
         int NumberOfPillars = FMath::FloorToInt(SegmentLength / FenceProperties.Spacing);
+        float InternalSpacing = SegmentLength / NumberOfPillars;
+        if (i != NumberOfSplinePoints - 1) NumberOfPillars--;
 
         // Spawn pillar actors
         for (int j = 0; j <= NumberOfPillars; ++j)
         {
-            FVector PillarPos = StartPos + Direction * (j * FenceProperties.Spacing);
+            FVector PillarPos = StartPos + Direction * (j * InternalSpacing);
 
             FTransform PillarTransform;
             //PillarTransform.SetRotation(FQuat::Identity);
             PillarTransform.SetScale3D(FVector(1)); // Adjust scale as needed
 
-            if (AVerticalRailActor* NewPillar = GetWorld()->SpawnActor<AVerticalRailActor>(PillarActorClass, PillarTransform))
+            if (AVerticalRailActor* NewPillar = GetWorld()->SpawnActor<AVerticalRailActor>(CurrentFFenceTypes.Fence, PillarTransform))
             {
                 NewPillar->RegisterAllComponents();
                 NewPillar->AttachToComponent(Spline, FAttachmentTransformRules::KeepWorldTransform); // Attach to spline component
@@ -275,7 +254,7 @@ void AFenceMeshActor::ReplaceHorizontalMeshWithProceduralMesh()
             if (CylinderActor)
             {
                 // Optionally, set scale or other properties
-                CylinderActor->GenerateCylinder(8.0f, Length, 20);
+                CylinderActor->GenerateCylinder(6.0f, Length, 20);
                 //CylinderActor->SetActorScale3D(Scale);
 
                 if (FenceMaterial)

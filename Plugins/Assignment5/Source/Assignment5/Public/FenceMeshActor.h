@@ -30,16 +30,30 @@ struct FFenceProperties
     float Spacing;
 };
 
+UENUM(BlueprintType)
+enum EFenceType : uint8
+{
+    RoundedOverTopCapital,
+    ACornCapital,
+    RoundTurnedCapital,
+    WindsorTurnedCapital,
+    GothicStarCapital,
+    PyramidTop
+};
+
 USTRUCT(BlueprintType)
 struct FFenceTypes : public FTableRowBase
 {
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    FString Name;
+    TEnumAsByte<EFenceType> Name;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TSubclassOf<AVerticalRailActor> Fence;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UStaticMesh* FenceMesh;
 
 };
 
@@ -51,6 +65,7 @@ class ASSIGNMENT5_API AFenceMeshActor : public AActor
 public:
     // Sets default values for this actor's properties
     AFenceMeshActor();
+    void LoadFenceData();
 
 protected:  
     virtual void BeginPlay() override;
@@ -70,9 +85,6 @@ private:
     USplineComponent* Spline;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
-    UStaticMesh* Mesh;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
     UMaterialInterface* FenceMaterial;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
@@ -80,9 +92,6 @@ private:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
     FFenceProperties FenceProperties;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
-    TSubclassOf<AVerticalRailActor> PillarActorClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
     TSubclassOf<AHorizontalProceduralMesh> HorizontalActorClass;
@@ -97,4 +106,12 @@ private:
 
     UPROPERTY()
     TArray<AActor*> SpawnedPillars;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence",meta = (AllowPrivateAccess = "true"))
+    TEnumAsByte<EFenceType> CurrentFenceType = EFenceType::ACornCapital;
+
+    UPROPERTY()
+    FFenceTypes CurrentFFenceTypes;
+
+    TArray<FFenceTypes*> FenceRows;
 };
