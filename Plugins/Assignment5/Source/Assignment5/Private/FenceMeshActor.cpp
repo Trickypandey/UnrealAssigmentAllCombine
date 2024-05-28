@@ -15,6 +15,11 @@ AFenceMeshActor::AFenceMeshActor()
     FenceProperties.Width = 5.0f;
     FenceProperties.Height = 18.0f;
     FenceProperties.Spacing = 20.0f;
+    if (!DataTable_Fence)
+    {
+        static ConstructorHelpers::FObjectFinder<UDataTable> Fence_DT(TEXT("/Script/Engine.DataTable'/Assignment5/DataTable/BP_FenceType.BP_FenceType'"));
+        DataTable_Fence = Fence_DT.Object;
+    }
 }
 
 void AFenceMeshActor::BeginPlay()
@@ -171,7 +176,7 @@ void AFenceMeshActor::SpawnPillarActors()
                 NewPillar->RegisterAllComponents();
                 NewPillar->AttachToComponent(Spline, FAttachmentTransformRules::KeepWorldTransform); // Attach to spline component
                 NewPillar->SetActorRelativeLocation(PillarPos); // Set the relative location
-                NewPillar->GenerateCuboidMesh(3,3,40);
+                NewPillar->GenerateCuboidMesh(3,3,FenceProperties.Height);
                 SpawnedPillars.Add(NewPillar);
                 
             }
@@ -223,7 +228,7 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
     HorizontalFence1->RegisterComponent();
     HorizontalFence1->SetWorldScale3D(FVector(FenceLength, Width, Height));
     HorizontalFence1->AttachToComponent(Spline, FAttachmentTransformRules::KeepRelativeTransform);
-    HorizontalFence1->SetRelativeLocation(MidPoint + FVector(0, 0, Height * 100.0f));
+    HorizontalFence1->SetRelativeLocation(MidPoint + FVector(0, 0, Height * 200.0f));
     HorizontalFence1->SetRelativeRotation(FenceRotation);
     HorizontalFence1->SetStaticMesh(HorizontalFenceStaticMesh);
     if (FenceMaterial)
@@ -237,7 +242,7 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
     HorizontalFence2->RegisterComponent();
     HorizontalFence2->SetWorldScale3D(FVector(FenceLength, Width, Height));
     HorizontalFence2->AttachToComponent(Spline, FAttachmentTransformRules::KeepRelativeTransform);
-    HorizontalFence2->SetRelativeLocation(MidPoint + FVector(0, 0, Height * 400.0f));
+    HorizontalFence2->SetRelativeLocation(MidPoint + FVector(0, 0, Height * 500.0f));
     HorizontalFence2->SetRelativeRotation(FenceRotation);
     HorizontalFence2->SetStaticMesh(HorizontalFenceStaticMesh);
     if (FenceMaterial)

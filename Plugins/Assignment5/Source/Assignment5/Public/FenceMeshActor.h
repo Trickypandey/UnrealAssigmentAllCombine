@@ -9,6 +9,7 @@
 #include "Components/SplineComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/DataTable.h"
 #include "FenceMeshActor.generated.h"
 
 USTRUCT(BlueprintType)
@@ -27,6 +28,19 @@ struct FFenceProperties
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
     float Spacing;
+};
+
+USTRUCT(BlueprintType)
+struct FFenceTypes : public FTableRowBase
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString Name;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<AVerticalRailActor> Fence;
+
 };
 
 UCLASS()
@@ -74,8 +88,13 @@ private:
     TSubclassOf<AHorizontalProceduralMesh> HorizontalActorClass;
 
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence", meta = (AllowPrivateAccess = "true"))
+    UDataTable* DataTable_Fence;
+
     UPROPERTY()
     TArray<UStaticMeshComponent*> SplineMeshes;
+
+
     UPROPERTY()
     TArray<AActor*> SpawnedPillars;
 };
