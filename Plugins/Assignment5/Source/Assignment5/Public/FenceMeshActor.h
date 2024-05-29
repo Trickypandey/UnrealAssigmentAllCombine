@@ -17,13 +17,13 @@ struct FFenceProperties
 {
     GENERATED_BODY()
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
+    UPROPERTY(BlueprintReadOnly, Category = "Fence Properties")
     float Length;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
+    UPROPERTY(BlueprintReadOnly, Category = "Fence Properties")
     float Width;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")
+    UPROPERTY(BlueprintReadOnly, Category = "Fence Properties")
     float Height;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fence Properties")

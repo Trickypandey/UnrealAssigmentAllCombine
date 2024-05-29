@@ -75,6 +75,7 @@ void AVerticalRailActor::InitialPillarGeneration()
     {
     case 0:
     {
+        //GenerateCuboidMesh(MSide, MSide, MHeight);
         MLocation.Z += BottomHeight + BottomSide /2; // Adjusted to place the rounded top at the top of the cube
         RoundTurnedCapital();
 
@@ -82,6 +83,7 @@ void AVerticalRailActor::InitialPillarGeneration()
     }
     case 1:
     {
+        //GenerateCuboidMesh(MSide, MSide, MHeight);
         MLocation.Z += BottomHeight  + BottomSide / 2; // Adjusted to place the rounded top at the top of the cube
 
         WindsorTurnedCapital();
@@ -178,7 +180,7 @@ void AVerticalRailActor::RoundedOverTopCapital()
 void AVerticalRailActor::GenerateSphere(float Radius, int32 Segments, int32 Rings)
 {
     // Clear previous mesh data
-    ProceduralMesh->ClearAllMeshSections();
+    //ProceduralMesh->ClearAllMeshSections();
 
     TArray<FVector> Vertices;
     TArray<int32> Triangles;
@@ -244,7 +246,7 @@ void AVerticalRailActor::GenerateSphere(float Radius, int32 Segments, int32 Ring
     }
 
     // Create the mesh section
-    ProceduralMesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
+    ProceduralMesh->CreateMeshSection_LinearColor(Segment++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
 }
 
 void AVerticalRailActor::GenerateCylinder(float Radius, float Height, int32 Segments)
@@ -634,7 +636,7 @@ void AVerticalRailActor::GenerateCornShape(int32 NumSegments, float BaseRadiusX,
     float BottomTaper = 0.1f; // Adjust for desired bottom taper (0 for no taper)
 
     GenerateSemiEggShape(NumSegments, BottomRadiusX, BottomRadiusY, CornBottomHeight, Vertices, Triangles, Normals, UVs, Tangents, VertexColors);
-    Segment++;
+
 
     // Middle section (elliptical cylinder with rounded ends)
     float MiddleRadiusX = (BaseRadiusX + BottomRadiusX) / 2.0f; // Adjust for smooth transition
@@ -1072,7 +1074,7 @@ void AVerticalRailActor::GenerateCylinderMesh(float Radius, float Height, int32 
 
 void AVerticalRailActor::GenerateCylinder(FVector Location, float Radius, float Height, int32 Segments)
 {
-    ProceduralMesh->ClearAllMeshSections();
+    //ProceduralMesh->ClearAllMeshSections();
     
     TArray<FVector> Normals;
     TArray<FVector2D> UVs;

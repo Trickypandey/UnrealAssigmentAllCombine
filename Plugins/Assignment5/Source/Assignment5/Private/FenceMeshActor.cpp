@@ -148,7 +148,7 @@ void AFenceMeshActor::SpawnPillarActors()
 
             FTransform PillarTransform;
             //PillarTransform.SetRotation(FQuat::Identity);
-            PillarTransform.SetScale3D(FVector(1)); // Adjust scale as needed
+            //PillarTransform.SetScale3D(FVector(1)); // Adjust scale as needed
 
             if (AVerticalRailActor* NewPillar = GetWorld()->SpawnActor<AVerticalRailActor>(CurrentFFenceTypes.Fence, PillarTransform))
             {
@@ -238,6 +238,11 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
     if (FenceMaterial)
     {
         HorizontalFence2->SetMaterial(0, FenceMaterial);
+    }
+    int NumberOfSplinePoints = Spline->GetNumberOfSplinePoints();
+    for (int32 i{}; i < NumberOfSplinePoints; ++i)
+    {
+        Spline->SetSplinePointType(i, ESplinePointType::Linear);
     }
     SplineMeshes.Add(HorizontalFence2);
 }
