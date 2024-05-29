@@ -35,11 +35,6 @@ void AVerticalRailActor::OnConstruction(const FTransform& Transform)
 	}
 
     InitialPillarGeneration();
-
-	//GenerateCylinderMesh(MRadius, MHeight, MSides);
-    //GenerateCuboidMesh(MSide, MSide, MHeight);
-    //GenerateCylinder(GetActorLocation(),30.f, 100.f, 20);
-
 }
 
 // Called when the game starts or when spawned
@@ -134,6 +129,7 @@ void AVerticalRailActor::RoundTurnedCapital()
 
     GenerateSphere(TopSide, 20, 20);
 }
+
 void AVerticalRailActor::WindsorTurnedCapital()
 {
 
@@ -145,11 +141,13 @@ void AVerticalRailActor::WindsorTurnedCapital()
     GenerateBellShape(TopSide / 2, 2, 0.5, 1, 10, 10);
 
 }
+
 void AVerticalRailActor::PyramidTop()
 {
 
     GeneratePyramid(TopSide * 2, TopSide * 2);
 }
+
 void AVerticalRailActor::ACornCapital()
 {
 
@@ -161,6 +159,7 @@ void AVerticalRailActor::ACornCapital()
     GenerateTorus(TopSide, TopSide + 2, 20, 20);
 
 }
+
 void AVerticalRailActor::GothicStarCapital()
 {
     GenerateBellShape(TopSide, TopSide / 2, TopSide / 2, 1, 10, 10);
@@ -169,6 +168,7 @@ void AVerticalRailActor::GothicStarCapital()
     GeneratePyramid(TopSide * 2, TopSide * 2);
 
 }
+
 void AVerticalRailActor::RoundedOverTopCapital()
 {
 
@@ -177,7 +177,8 @@ void AVerticalRailActor::RoundedOverTopCapital()
 
 void AVerticalRailActor::GenerateSphere(float Radius, int32 Segments, int32 Rings)
 {
-    //ProcMeshComponent->ClearAllMeshSections();
+    // Clear previous mesh data
+    ProceduralMesh->ClearAllMeshSections();
 
     TArray<FVector> Vertices;
     TArray<int32> Triangles;
@@ -185,41 +186,25 @@ void AVerticalRailActor::GenerateSphere(float Radius, int32 Segments, int32 Ring
     TArray<FVector2D> UVs;
     TArray<FProcMeshTangent> Tangents;
     TArray<FLinearColor> Colors;
-    for (int r = 0; r < Rings; ++r)
+
+    // Generate vertices, normals, UVs, and tangents
+    for (int r = 0; r <= Rings; ++r)
     {
-        float Phi = PI * r / (Rings + 1);
-        for (int s = 0; s < Segments; ++s)
+        float Phi = PI * r / Rings;
+        for (int s = 0; s <= Segments; ++s)
         {
             float Theta = 2 * PI * s / Segments;
             FVector Pos = FVector(Radius * FMath::Sin(Phi) * FMath::Cos(Theta), Radius * FMath::Sin(Phi) * FMath::Sin(Theta), Radius * FMath::Cos(Phi)) + MLocation;
             Vertices.Add(Pos);
             Normals.Add(Pos.GetSafeNormal());
-            UVs.Add(FVector2D(static_cast<float>(s) / Segments, static_cast<float>(r) / (Rings + 1)));
+            UVs.Add(FVector2D(static_cast<float>(s) / Segments, static_cast<float>(r) / Rings));
             FVector Tangent = FVector(-FMath::Sin(Theta), FMath::Cos(Theta), 0).GetSafeNormal();
             Tangents.Add(FProcMeshTangent(Tangent, false));
             Colors.Add(FLinearColor(1, 1, 1, 1));
-
-            // We only add extra vertices at the seam on the first ring iteration
-            if (s == Segments)
-            {
-                // Duplicate the first vertex of each ring at the seam for seamless UVs
-                Vertices.Add(Vertices[1 + (r - 1) * (Segments + 1)]);
-                Normals.Add(Normals[1 + (r - 1) * (Segments + 1)]);
-                UVs.Add(FVector2D(1.f, static_cast<float>(r) / (Rings + 1)));
-                Tangents.Add(Tangents[1 + (r - 1) * (Segments + 1)]);
-                Colors.Add(FLinearColor(1, 1, 1, 1));
-            }
         }
     }
 
-    // Bottom vertex
-    Vertices.Add(MLocation - FVector(0, 0, Radius));
-    Normals.Add(FVector(0, 0, -1));
-    UVs.Add(FVector2D(0.5f, 1));
-    Tangents.Add(FProcMeshTangent(FVector(1, 0, 0), false));
-    Colors.Add(FLinearColor(1, 1, 1, 1));
-
-    // Top Cap
+    // Generate triangles for top cap
     for (int s = 0; s < Segments; ++s)
     {
         Triangles.Add(0);
@@ -227,41 +212,40 @@ void AVerticalRailActor::GenerateSphere(float Radius, int32 Segments, int32 Ring
         Triangles.Add(1 + (s + 1) % Segments);
     }
 
-    // Body
+    // Generate triangles for body
     for (int r = 0; r < Rings; ++r)
     {
         for (int s = 0; s < Segments; ++s)
         {
-            int Current = 1 + r * Segments + s;
+            int Current = r * (Segments + 1) + s;
             int Next = Current + 1;
-            if (s == Segments - 1) Next = 1 + r * Segments;  // Wrap around
+            int Below = Current + (Segments + 1);
+            int BelowNext = Below + 1;
 
-            int Below = Current + Segments;
-            int BelowNext = Next + Segments;
-
+            // First triangle
             Triangles.Add(Current);
+            Triangles.Add(BelowNext);
             Triangles.Add(Next);
-            Triangles.Add(BelowNext);
 
+            // Second triangle
             Triangles.Add(Current);
-            Triangles.Add(BelowNext);
             Triangles.Add(Below);
+            Triangles.Add(BelowNext);
         }
     }
 
-    // Bottom Cap
-    int BottomIndex = Vertices.Num() - 1;
-    int FirstOfLastRing = 1 + (Rings - 1) * Segments;
+    // Generate triangles for bottom cap
+    int BottomVertexIndex = Vertices.Num() - 1;
     for (int s = 0; s < Segments; ++s)
     {
-        Triangles.Add(BottomIndex);
-        Triangles.Add(FirstOfLastRing + (s + 1) % Segments);
-        Triangles.Add(FirstOfLastRing + s);
+        Triangles.Add(BottomVertexIndex);
+        Triangles.Add(BottomVertexIndex - (Segments + 1) + s);
+        Triangles.Add(BottomVertexIndex - (Segments + 1) + (s + 1) % Segments);
     }
 
-    ProceduralMesh->CreateMeshSection_LinearColor(Segment++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
+    // Create the mesh section
+    ProceduralMesh->CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
 }
-
 
 void AVerticalRailActor::GenerateCylinder(float Radius, float Height, int32 Segments)
 {
@@ -385,8 +369,6 @@ void AVerticalRailActor::GenerateCone(float Radius, float Height, int32 Segments
     ProceduralMesh->CreateMeshSection_LinearColor(Segment++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
 }
 
-
-
 void AVerticalRailActor::GenerateBellShape(float BaseRadius, float Height, float RimRadius, float CurvatureFactor, int NumSlices, int NumStacks)
 {
     TArray<FVector> Vertices;
@@ -480,9 +462,6 @@ void AVerticalRailActor::GenerateBellShape(float BaseRadius, float Height, float
 
     ProceduralMesh->CreateMeshSection_LinearColor(Segment++, Vertices, Triangles, Normals, UVs, Colors, Tangents, true);
 }
-
-
-
 
 void AVerticalRailActor::GenerateTorus(float InnerRadius, float OuterRadius, int32 RadialSegments, int32 TubularSegments)
 {
@@ -636,6 +615,7 @@ void AVerticalRailActor::GenerateInvertedSemiEggShape(int32 NumSegments, float R
         }
     }
 }
+
 void AVerticalRailActor::GenerateCornShape(int32 NumSegments, float BaseRadiusX, float BaseRadiusY, float Height)
 {
     TArray<FVector> Vertices;
@@ -765,6 +745,7 @@ void AVerticalRailActor::GenerateCornShape(int32 NumSegments, float BaseRadiusX,
     // Create mesh sections
     ProceduralMesh->CreateMeshSection_LinearColor(Segment++, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, true);
 }
+
 void AVerticalRailActor::GeneratePyramid(float BaseLength, float Height)
 {
     TArray<FVector> Vertices;

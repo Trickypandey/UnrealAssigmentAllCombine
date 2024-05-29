@@ -96,7 +96,7 @@ void AFenceMeshActor::CreateStaticMeshes()
         float InternalSpacing = SegmentLength / NumberOfPillars;
         if (i != NumberOfSplinePoints - 1) NumberOfPillars--;
 
-        // Create static mesh pillars
+       
         for (int j = 0; j <= NumberOfPillars; ++j)
         {
             FVector PillarPos = StartPos + Direction * (j * InternalSpacing);
@@ -156,6 +156,17 @@ void AFenceMeshActor::SpawnPillarActors()
                 NewPillar->AttachToComponent(Spline, FAttachmentTransformRules::KeepWorldTransform); // Attach to spline component
                 NewPillar->SetActorRelativeLocation(PillarPos); // Set the relative location
                 NewPillar->GenerateCuboidMesh(3,3,FenceProperties.Height);
+
+                if (FenceMaterial)
+                {
+                    UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
+                    if (DynamicMaterial)
+                    {
+                        NewPillar->ProceduralMesh->SetMaterial(0, FenceMaterial);
+
+                    }
+                }
+
                 SpawnedPillars.Add(NewPillar);
                 
             }
@@ -231,7 +242,6 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
     SplineMeshes.Add(HorizontalFence2);
 }
 
-
 void AFenceMeshActor::ReplaceHorizontalMeshWithProceduralMesh()
 {
     TArray<UStaticMeshComponent*> Components;
@@ -259,24 +269,21 @@ void AFenceMeshActor::ReplaceHorizontalMeshWithProceduralMesh()
 
                 if (FenceMaterial)
                 {
-                    //UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
-                    //if (DynamicMaterial)
-                    //{
-                    //    DynamicMaterial->SetScalarParameterValue(FName("TileX"), Length / 100.0f); // Example scaling
-                    //    DynamicMaterial->SetScalarParameterValue(FName("TileY"), TileY);
+                    UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
+                    if (DynamicMaterial)
+                    {
+                        DynamicMaterial->SetScalarParameterValue(FName("TileX"), Length / 100.0f); // Example scaling
+                        //DynamicMaterial->SetScalarParameterValue(FName("TileY"), TileY);
 
-                    //    for (int i = 0; i < CylinderActor->ProcMeshComponent->GetNumSections(); i++)
-                    //    {
-                    //        CylinderActor->ProcMeshComponent->SetMaterial(i, DynamicMaterial);
-                    //    }
+                        for (int i = 0; i < CylinderActor->ProcMeshComponent->GetNumSections(); i++)
+                        {
+                            CylinderActor->ProcMeshComponent->SetMaterial(i, DynamicMaterial);
+                        }
 
-                    //}
+                    }
                 }
             }
 
-
-            // Destroy the bamboo stick
-            //Component->DestroyComponent();
         }
     }
 

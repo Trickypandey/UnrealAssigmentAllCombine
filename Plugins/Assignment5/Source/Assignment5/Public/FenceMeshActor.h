@@ -114,4 +114,6 @@ private:
     FFenceTypes CurrentFFenceTypes;
 
     TArray<FFenceTypes*> FenceRows;
+
+
 };
