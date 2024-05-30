@@ -91,13 +91,11 @@ void AFenceMeshActor::CreateStaticMeshes()
 
         FVector Direction = (EndPos - StartPos).GetSafeNormal();
         float SegmentLength = FVector::Distance(StartPos, EndPos);
-        int NumberOfPillars = FMath::FloorToInt(SegmentLength / FenceProperties.Spacing);
+        int NumberOfPillars = FMath::CeilToInt(SegmentLength / FenceProperties.Spacing);
 
-        float InternalSpacing = SegmentLength / NumberOfPillars;
-        if (i != NumberOfSplinePoints - 1) NumberOfPillars--;
+        float InternalSpacing = SegmentLength / (NumberOfPillars - 1);
 
-       
-        for (int j = 0; j <= NumberOfPillars; ++j)
+        for (int j = 0; j < NumberOfPillars; ++j)
         {
             FVector PillarPos = StartPos + Direction * (j * InternalSpacing);
 
@@ -124,84 +122,6 @@ void AFenceMeshActor::CreateStaticMeshes()
     }
 }
 
-void AFenceMeshActor::SpawnPillarActors()
-{
-    int NumberOfSplinePoints = Spline->GetNumberOfSplinePoints();
-
-    for (int i = 1; i < NumberOfSplinePoints; i++)
-    {
-        FVector StartPos = Spline->GetLocationAtSplinePoint(i - 1, ESplineCoordinateSpace::Local);
-        FVector EndPos = Spline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::Local);
-
-        FRotator Rt = Spline->GetRotationAtSplinePoint(i - 1, ESplineCoordinateSpace::Local);
-
-        FVector Direction = (EndPos - StartPos).GetSafeNormal();
-        float SegmentLength = FVector::Distance(StartPos, EndPos);
-        int NumberOfPillars = FMath::FloorToInt(SegmentLength / FenceProperties.Spacing);
-        float InternalSpacing = SegmentLength / NumberOfPillars;
-        if (i != NumberOfSplinePoints - 1) NumberOfPillars--;
-
-        // Spawn pillar actors
-        for (int j = 0; j <= NumberOfPillars; ++j)
-        {
-            FVector PillarPos = StartPos + Direction * (j * InternalSpacing);
-
-            FTransform PillarTransform;
-            //PillarTransform.SetRotation(FQuat::Identity);
-            //PillarTransform.SetScale3D(FVector(1)); // Adjust scale as needed
-
-            if (AVerticalRailActor* NewPillar = GetWorld()->SpawnActor<AVerticalRailActor>(CurrentFFenceTypes.Fence, PillarTransform))
-            {
-                NewPillar->RegisterAllComponents();
-                NewPillar->AttachToComponent(Spline, FAttachmentTransformRules::KeepWorldTransform); // Attach to spline component
-                NewPillar->SetActorRelativeLocation(PillarPos); // Set the relative location
-                NewPillar->GenerateCuboidMesh(3,3,FenceProperties.Height);
-
-                if (FenceMaterial)
-                {
-                    UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
-                    if (DynamicMaterial)
-                    {
-                        NewPillar->ProceduralMesh->SetMaterial(0, FenceMaterial);
-
-                    }
-                }
-
-                SpawnedPillars.Add(NewPillar);
-                
-            }
-        }
-    }
-}
-
-void AFenceMeshActor::ClearPreviousAttachedMesh(bool Flag)
-{
-    if(Flag)
-    {
-	    
-	    for (UStaticMeshComponent* MeshComponent : SplineMeshes)
-	    {
-	        if (MeshComponent)
-	        {
-	            MeshComponent->DestroyComponent();
-	        }
-	    }
-	    SplineMeshes.Empty();
-    }
-    else
-    {
-	    
-	    for (auto* Pillar : SpawnedPillars)
-	    {
-			if(Pillar)
-			{
-	            Pillar->Destroy();
-			}
-	    }
-	    SpawnedPillars.Empty();
-    }
-
-}
 
 void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVector& EndPos)
 {
@@ -225,7 +145,7 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
     {
         HorizontalFence1->SetMaterial(0, FenceMaterial);
     }
-    SplineMeshes.Add(HorizontalFence1);
+    HorizontalSplineMeshes.Add(HorizontalFence1);
 
    
     UStaticMeshComponent* HorizontalFence2 = NewObject<UStaticMeshComponent>(this);
@@ -240,12 +160,87 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
         HorizontalFence2->SetMaterial(0, FenceMaterial);
     }
     int NumberOfSplinePoints = Spline->GetNumberOfSplinePoints();
-    for (int32 i{}; i < NumberOfSplinePoints; ++i)
+  /*  for (int32 i{}; i < NumberOfSplinePoints; ++i)
     {
         Spline->SetSplinePointType(i, ESplinePointType::Linear);
-    }
-    SplineMeshes.Add(HorizontalFence2);
+    }*/
+    HorizontalSplineMeshes.Add(HorizontalFence2);
 }
+
+void AFenceMeshActor::ClearPreviousAttachedMesh(bool Flag)
+{
+
+	    
+	    for (UStaticMeshComponent* MeshComponent : SplineMeshes)
+	    {
+	        if (MeshComponent)
+	        {
+	            MeshComponent->DestroyComponent();
+	        }
+	    }
+	    SplineMeshes.Empty();
+
+       for ( auto* MeshComponent : HorizontalSplineMeshes)
+       {
+	       if (MeshComponent)
+	       {
+		       
+			MeshComponent->DestroyComponent();
+	       }
+       }
+
+}
+
+void AFenceMeshActor::SpawnPillarActors()
+{
+    int NumberOfSplinePoints = Spline->GetNumberOfSplinePoints();
+
+    for (int i = 1; i < NumberOfSplinePoints; i++)
+    {
+        FVector StartPos = Spline->GetLocationAtSplinePoint(i - 1, ESplineCoordinateSpace::Local);
+        FVector EndPos = Spline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::Local);
+
+        FRotator Rt = Spline->GetRotationAtSplinePoint(i - 1, ESplineCoordinateSpace::Local);
+
+        FVector Direction = (EndPos - StartPos).GetSafeNormal();
+        float SegmentLength = FVector::Distance(StartPos, EndPos);
+        int NumberOfPillars = FMath::FloorToInt(SegmentLength / FenceProperties.Spacing);
+        float InternalSpacing = SegmentLength / NumberOfPillars;
+        if (i != NumberOfSplinePoints - 1) NumberOfPillars--;
+
+        // Spawn pillar actors
+        for (int j = 0; j <= NumberOfPillars; ++j)
+        {
+            FVector PillarPos = StartPos + Direction * (j * InternalSpacing);
+
+            FTransform PillarTransform;
+
+            if (AVerticalRailActor* NewPillar = GetWorld()->SpawnActor<AVerticalRailActor>(CurrentFFenceTypes.Fence, PillarTransform))
+            {
+                NewPillar->RegisterAllComponents();
+                NewPillar->AttachToComponent(Spline, FAttachmentTransformRules::KeepWorldTransform); // Attach to spline component
+                NewPillar->SetActorRelativeLocation(PillarPos); // Set the relative location
+                NewPillar->GenerateCuboidMesh(3,3,FenceProperties.Height);
+                if (FenceMaterial)
+                {
+	                if (UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this))
+                    {
+                        for (int Sections = 0; Sections < NewPillar->ProceduralMesh->GetNumSections(); Sections++)
+                        {
+                            NewPillar->ProceduralMesh->SetMaterial(Sections, DynamicMaterial);
+                        }
+
+                    }
+                }
+
+
+                SpawnedPillars.Add(NewPillar);
+                
+            }
+        }
+    }
+}
+
 
 void AFenceMeshActor::ReplaceHorizontalMeshWithProceduralMesh()
 {

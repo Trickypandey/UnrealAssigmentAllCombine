@@ -70,6 +70,7 @@ void AVerticalRailActor::InitialPillarGeneration()
         ProcMeshComponent->ClearMeshSection(Segment);
     }*/
     GenerateCuboidMesh(MSide, MSide, MHeight);
+    
 	Index = Index % 6;
     switch (Index)
     {
@@ -1144,86 +1145,76 @@ void AVerticalRailActor::GenerateCylinder(FVector Location, float Radius, float 
 
 void AVerticalRailActor::GenerateCuboidMesh(float Width, float Depth, int32 Height)
 {
-    MVertices.Empty();
-    MTriangles.Empty();
+    TArray<FVector> Vertices;
 
-    const float HalfWidth = Width ;
-    const float HalfDepth = Depth ;
-    const float HalfHeight = Height ;
+    float L = Width ;  // Half width
+    float W = Depth ;  // Half depth
+    float H = Height;     // Full height
 
-    // Vertices for the cuboid
-    MVertices.Add(FVector(-HalfWidth, -HalfDepth, 0)); // 0
-    MVertices.Add(FVector(HalfWidth, -HalfDepth, 0));  // 1
-    MVertices.Add(FVector(HalfWidth, HalfDepth, 0));   // 2
-    MVertices.Add(FVector(-HalfWidth, HalfDepth, 0));  // 3
-    MVertices.Add(FVector(-HalfWidth, HalfDepth, HalfHeight)); // 4
-    MVertices.Add(FVector(-HalfWidth, -HalfDepth, HalfHeight)); // 5
-    MVertices.Add(FVector(HalfWidth, -HalfDepth, HalfHeight));  // 6
-    MVertices.Add(FVector(HalfWidth, HalfDepth,  HalfHeight));// 7
+    // Front Face
+    Vertices.Add(FVector(-L, -W, 0));  // 0
+    Vertices.Add(FVector(-L, W, 0));   // 1
+    Vertices.Add(FVector(-L, W, H));   // 2
+    Vertices.Add(FVector(-L, -W, H));  // 3
 
+    // Bottom Face
+    Vertices.Add(FVector(-L, -W, 0));  // 4
+    Vertices.Add(FVector(L, -W, 0));   // 5
+    Vertices.Add(FVector(L, W, 0));    // 6
+    Vertices.Add(FVector(-L, W, 0));   // 7
 
+    // Back Face
+    Vertices.Add(FVector(L, -W, 0));   // 8
+    Vertices.Add(FVector(L, -W, H));   // 9
+    Vertices.Add(FVector(L, W, H));    // 10
+    Vertices.Add(FVector(L, W, 0));    // 11
 
-    // FOR  RIGHT FENCE 
- //   MVertices.Add(FVector(HalfWidth, -HalfDepth, 80));  // 8
- //   MVertices.Add(FVector(HalfWidth, -HalfDepth, 60));  // 9
- //   MVertices.Add(FVector(-HalfWidth, -HalfDepth, 80)); // 10
- //   MVertices.Add(FVector(-HalfWidth, -HalfDepth, 60)); // 11
-	//MVertices.Add(FVector(HalfWidth, -HalfDepth - 50, 80));  // 12
- //   MVertices.Add(FVector(HalfWidth, -HalfDepth - 50, 60));  // 13
- //   MVertices.Add(FVector(-HalfWidth, -HalfDepth - 50, 80)); // 14
- //   MVertices.Add(FVector(-HalfWidth, -HalfDepth - 50, 60)); // 15
-    //Vertices.Add(FVector(-HalfWidth, -HalfDepth, HalfHeight));  // 4
-    //Vertices.Add(FVector(HalfWidth, -HalfDepth, HalfHeight));   // 5
-    //Vertices.Add(FVector(HalfWidth, HalfDepth, HalfHeight));    // 6
-    //Vertices.Add(FVector(-HalfWidth, HalfDepth, HalfHeight));   // 7
+    // Top Face
+    Vertices.Add(FVector(L, -W, H));   // 12
+    Vertices.Add(FVector(-L, -W, H));  // 13
+    Vertices.Add(FVector(-L, W, H));   // 14
+    Vertices.Add(FVector(L, W, H));    // 15
 
-    // Triangles for the 6 faces of the cuboid
-    // Bottom face
-    MTriangles.Add(0); MTriangles.Add(1); MTriangles.Add(2);
-    MTriangles.Add(0); MTriangles.Add(2); MTriangles.Add(3);
+    // Left Face
+    Vertices.Add(FVector(-L, -W, H));  // 16
+    Vertices.Add(FVector(L, -W, H));   // 17
+    Vertices.Add(FVector(L, -W, 0));   // 18
+    Vertices.Add(FVector(-L, -W, 0));  // 19
 
-    //// Top face
-    MTriangles.Add(4); MTriangles.Add(6); MTriangles.Add(5);
-    MTriangles.Add(4); MTriangles.Add(7); MTriangles.Add(6);
+    // Right Face
+    Vertices.Add(FVector(-L, W, H));   // 20
+    Vertices.Add(FVector(-L, W, 0));   // 21
+    Vertices.Add(FVector(L, W, 0));    // 22
+    Vertices.Add(FVector(L, W, H));    // 23
 
-    // Front face
-    MTriangles.Add(0); MTriangles.Add(4); MTriangles.Add(5);
-    MTriangles.Add(0); MTriangles.Add(5); MTriangles.Add(1);
+    // Triangles
+    TArray<int32> Triangles = {
+        0, 1, 3, 1, 2, 3,  // Front Face
+        4, 5, 7, 5, 6, 7,  // Bottom Face
+        8, 9, 11, 9, 10, 11,  // Back Face
+        12, 13, 15, 13, 14, 15,  // Top Face
+        16, 17, 19, 17, 18, 19,  // Left Face
+        20, 21, 23, 21, 22, 23   // Right Face
+    };
 
-    // Back face
-    MTriangles.Add(2); MTriangles.Add(6); MTriangles.Add(7);
-    MTriangles.Add(2); MTriangles.Add(7); MTriangles.Add(3);
+    TArray<FVector2D> UVs = {
+        FVector2D(0, 1), FVector2D(1, 1), FVector2D(1, 0), FVector2D(0, 0), // Front Face
+        FVector2D(0, 0), FVector2D(0, 1), FVector2D(1, 1), FVector2D(1, 0), // Bottom Face
+        FVector2D(1, 1), FVector2D(1, 0), FVector2D(0, 0), FVector2D(0, 1), // Back Face
+        FVector2D(0, 0), FVector2D(0, 1), FVector2D(1, 1), FVector2D(1, 0), // Top Face
+        FVector2D(1, 0), FVector2D(0, 0), FVector2D(0, 1), FVector2D(1, 1), // Left Face
+        FVector2D(0, 0), FVector2D(0, 1), FVector2D(1, 1), FVector2D(1, 0)  // Right Face
+    };
 
-    // Left face
-    MTriangles.Add(0); MTriangles.Add(3); MTriangles.Add(4);
-    MTriangles.Add(3); MTriangles.Add(7); MTriangles.Add(4);
+    TArray<FVector> Normals = {
+        FVector(-1, 0, 0), FVector(-1, 0, 0), FVector(-1, 0, 0), FVector(-1, 0, 0), // Front Face
+        FVector(0, 0, -1), FVector(0, 0, -1), FVector(0, 0, -1), FVector(0, 0, -1), // Bottom Face
+        FVector(1, 0, 0), FVector(1, 0, 0), FVector(1, 0, 0), FVector(1, 0, 0), // Back Face
+        FVector(0, 0, 1), FVector(0, 0, 1), FVector(0, 0, 1), FVector(0, 0, 1), // Top Face
+        FVector(0, -1, 0), FVector(0, -1, 0), FVector(0, -1, 0), FVector(0, -1, 0), // Left Face
+        FVector(0, 1, 0), FVector(0, 1, 0), FVector(0, 1, 0), FVector(0, 1, 0)  // Right Face
+    };
 
-    // Right face
-    MTriangles.Add(1); MTriangles.Add(5); MTriangles.Add(6);
-    MTriangles.Add(1); MTriangles.Add(6); MTriangles.Add(2);
-
-
-
-
-    // triangles for horizontal bar
- //   MTriangles.Add(9); MTriangles.Add(13); MTriangles.Add(12);
- //   MTriangles.Add(9); MTriangles.Add(12); MTriangles.Add(8);
-
-	//MTriangles.Add(13); MTriangles.Add(15); MTriangles.Add(14);
- //   MTriangles.Add(13); MTriangles.Add(14); MTriangles.Add(12);
-
-	//MTriangles.Add(15); MTriangles.Add(11); MTriangles.Add(10);
- //   MTriangles.Add(15); MTriangles.Add(10); MTriangles.Add(14);
-
-	//MTriangles.Add(12); MTriangles.Add(14); MTriangles.Add(10);
- //   MTriangles.Add(12); MTriangles.Add(10); MTriangles.Add(8);
-
-	//MTriangles.Add(9); MTriangles.Add(11); MTriangles.Add(15);
- //   MTriangles.Add(9); MTriangles.Add(15); MTriangles.Add(13);
-
-
-
-    // Create the procedural mesh section
-    ProceduralMesh->CreateMeshSection(Segment++, MVertices, MTriangles, TArray<FVector>(), TArray<FVector2D>(), TArray<FColor>(), TArray<FProcMeshTangent>(), false);
-    
+    ProceduralMesh->CreateMeshSection_LinearColor(Segment++, Vertices, Triangles, Normals, UVs, TArray<FLinearColor>(), TArray<FProcMeshTangent>(), true);
 }
+

@@ -41,6 +41,13 @@ enum EFenceType : uint8
     PyramidTop
 };
 
+UENUM(BlueprintType)
+enum EMovementOfFence : uint8
+{
+    Free,
+    Straight
+};
+
 USTRUCT(BlueprintType)
 struct FFenceTypes : public FTableRowBase
 {
@@ -102,6 +109,9 @@ private:
 
     UPROPERTY()
     TArray<UStaticMeshComponent*> SplineMeshes;
+
+	UPROPERTY()
+    TArray<UStaticMeshComponent*> HorizontalSplineMeshes;
 
 
     UPROPERTY()

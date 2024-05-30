@@ -89,6 +89,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rail Settings")
 	int32 Index = 0.0f;
 
+	
 	int32 Segment = 0;
+
+	UPROPERTY()
+	UMaterialInstanceDynamic* FenceMaterial;
 
 };
