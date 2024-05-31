@@ -1,4 +1,51 @@
-# Unreal Engine Assignment Week 4
+# Unreal Engine Assignment Week 
+
+
+   ### Objective
+
+Develop a procedural fence system in Unreal Engine using C++. The system should use splines to spread fences along a path, allowing for customizable parameters such as shape, length, height, and spacing. The vertical rail meshes for the fence need to be procedural mesh, with custom shape designs.
+
+### Features
+
+1. **Initial Classes**:
+   - `FFenceProperties` for managing fence characteristics such as length, width, height, and spacing.
+   - `AFenceMeshActor` for procedural fence generation along splines.
+   - `AVerticalRailActor` for defining the shape and size of vertical rails.
+
+2. **Procedural Mesh Component for Vertical Rails**:
+   - Procedural generation of different types of vertical fence rail meshes.
+   - Each vertical mesh consists of:
+     - Bottom Part: A fixed part.
+     - Top Part: A customizable part that can interpolate (lerp) between different designs.
+   - Construction script integration.
+
+3. **Fence Actor Class Modification**:
+   - Construction script spawns vertical and horizontal meshes along the spline path.
+   - Replaces static meshes with procedural mesh actors upon game start.
+
+4. **Material Creation and Application**:
+   - Custom wooden material with parameters for color and textures.
+   - Dynamic material instances with UV tiling adjustments for stretched meshes.
+
+5. **Customization**:
+   - Adjustable fence height and horizontal fence width.
+
+### Usage Instructions
+
+1. **Change Game Mode**:
+   - Switch to `BP_ProMeshGameMode`.
+   - Add `BP_Fence` from the plugin content to the viewport.
+
+2. **Customization Options**:
+   - Change the length and spacing of the fence.
+   - Adjust the width of the horizontal fence.
+
+
+   ### Demo
+
+[Watch the demo video](https://zuruinc-my.sharepoint.com/:v:/g/personal/sourabh_pandey_zuru_com/EUUjZCXRqGZPuyRDymsubEwBD2rJecxdua1AijQ2ueIqPQ?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=LNS3Q6)
+
+
 
 ## Objective
 
@@ -116,14 +163,3 @@ This project is integrated with Assignment 3 and maintains consistency across as
 
 If you would like to contribute to this project, please fork the repository and submit a pull request. For major changes, please open an issue first to discuss what you would like to change.
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE.md file for details.
-
-## Contact
-
-For any questions or inquiries, please contact [your-email@example.com](mailto:your-email@example.com).
-
----
-
-This project is a comprehensive system for mesh management and customization in Unreal Engine, featuring a dynamic UI and multiple camera views, aimed at enhancing player interaction and experience in a 3D environment.
