@@ -104,7 +104,7 @@ void AFenceMeshActor::CreateStaticMeshes()
             NewPillar->SetStaticMesh(CurrentFFenceTypes.FenceMesh);
             NewPillar->SetRelativeLocation(PillarPos);
             NewPillar->SetupAttachment(Spline);
-            NewPillar->SetRelativeScale3D(FVector(1.f)); // Adjust scale as needed
+            NewPillar->SetRelativeScale3D(FVector(1.f,1.f,FenceProperties.Length/100)); // Adjust scale as needed
             NewPillar->SetMobility(EComponentMobility::Movable);
             if (FenceMaterial)
             {
@@ -130,7 +130,7 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
     float FenceLength = FVector::Distance(StartPos, EndPos) / 100.0f;
 
     float Width = FenceProperties.Width / 100.0f;
-    float Height = FenceProperties.Height / 150.0f;
+    float Height = FenceProperties.Width / 100.0f;
 
     FRotator FenceRotation = FenceDirection.Rotation();
    
@@ -138,7 +138,7 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
     HorizontalFence1->RegisterComponent();
     HorizontalFence1->SetWorldScale3D(FVector(FenceLength, Width, Height));
     HorizontalFence1->AttachToComponent(Spline, FAttachmentTransformRules::KeepRelativeTransform);
-    HorizontalFence1->SetRelativeLocation(MidPoint + FVector(0, 0, Height * 200.0f));
+    HorizontalFence1->SetRelativeLocation(MidPoint + FVector(0, 0, (FenceProperties.Length*2)/5));
     HorizontalFence1->SetRelativeRotation(FenceRotation);
     HorizontalFence1->SetStaticMesh(HorizontalFenceStaticMesh);
     if (FenceMaterial)
@@ -152,7 +152,7 @@ void AFenceMeshActor::CreateHorizontalFence(const FVector& StartPos, const FVect
     HorizontalFence2->RegisterComponent();
     HorizontalFence2->SetWorldScale3D(FVector(FenceLength, Width, Height));
     HorizontalFence2->AttachToComponent(Spline, FAttachmentTransformRules::KeepRelativeTransform);
-    HorizontalFence2->SetRelativeLocation(MidPoint + FVector(0, 0, Height * 500.0f));
+    HorizontalFence2->SetRelativeLocation(MidPoint + FVector(0, 0, (FenceProperties.Length * 3) / 5));
     HorizontalFence2->SetRelativeRotation(FenceRotation);
     HorizontalFence2->SetStaticMesh(HorizontalFenceStaticMesh);
     if (FenceMaterial)
@@ -220,7 +220,12 @@ void AFenceMeshActor::SpawnPillarActors()
                 NewPillar->RegisterAllComponents();
                 NewPillar->AttachToComponent(Spline, FAttachmentTransformRules::KeepWorldTransform); // Attach to spline component
                 NewPillar->SetActorRelativeLocation(PillarPos); // Set the relative location
-                NewPillar->GenerateCuboidMesh(3,3,FenceProperties.Height);
+                //NewPillar->GenerateCuboidMesh(3,3,FenceProperties.Height);
+
+                NewPillar->BottomHeight = FenceProperties.Length;
+                NewPillar->BottomSide = FenceProperties.Width;
+                NewPillar->InitialPillarGeneration();
+                
                 if (FenceMaterial)
                 {
 	                if (UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this))
@@ -260,13 +265,14 @@ void AFenceMeshActor::ReplaceHorizontalMeshWithProceduralMesh()
             float Radius = 5.0f; // Adjust the radius as necessary
 
             // Spawn procedural mesh actor at the location of the bamboo stick
-            AHorizontalProceduralMesh* CylinderActor = GetWorld()->SpawnActor<AHorizontalProceduralMesh>(Location, Rotation);
-            if (CylinderActor)
+            AHorizontalProceduralMesh* HorizontalActor = GetWorld()->SpawnActor<AHorizontalProceduralMesh>(Location, Rotation);
+            if (HorizontalActor)
             {
                 // Optionally, set scale or other properties
-                CylinderActor->GenerateCylinder(6.0f, Length, 20);
+                HorizontalActor->GenerateCylinder(FenceProperties.Width/2, Length, 20);
+                //HorizontalActor->GenerateCuboidMesh(Length/100, FenceProperties.Width, FenceProperties.Length / 2500.0f);
                 //CylinderActor->SetActorScale3D(Scale);
-
+                
                 if (FenceMaterial)
                 {
                     UMaterialInstanceDynamic* DynamicMaterial = UMaterialInstanceDynamic::Create(FenceMaterial, this);
@@ -275,9 +281,9 @@ void AFenceMeshActor::ReplaceHorizontalMeshWithProceduralMesh()
                         DynamicMaterial->SetScalarParameterValue(FName("TileX"), Length / 100.0f); // Example scaling
                         //DynamicMaterial->SetScalarParameterValue(FName("TileY"), TileY);
 
-                        for (int i = 0; i < CylinderActor->ProcMeshComponent->GetNumSections(); i++)
+                        for (int i = 0; i < HorizontalActor->ProcMeshComponent->GetNumSections(); i++)
                         {
-                            CylinderActor->ProcMeshComponent->SetMaterial(i, DynamicMaterial);
+                            HorizontalActor->ProcMeshComponent->SetMaterial(i, DynamicMaterial);
                         }
 
                     }

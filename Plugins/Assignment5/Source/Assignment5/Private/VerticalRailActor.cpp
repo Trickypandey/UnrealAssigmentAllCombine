@@ -54,7 +54,7 @@ void AVerticalRailActor::Tick(float DeltaTime)
 
 void AVerticalRailActor::InitialPillarGeneration()
 {
-    BottomHeight = MHeight;
+    //BottomHeight = MHeight;
     TopMeshLerpValue = 0.0f;
     //MeshTypeIndex = 0;
     MLocation = FVector::ZeroVector;
@@ -69,7 +69,7 @@ void AVerticalRailActor::InitialPillarGeneration()
     {
         ProcMeshComponent->ClearMeshSection(Segment);
     }*/
-    GenerateCuboidMesh(MSide, MSide, MHeight);
+    GenerateCuboidMesh(MSide, MSide, BottomHeight);
     
 	Index = Index % 6;
     switch (Index)

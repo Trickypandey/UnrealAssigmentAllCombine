@@ -22,7 +22,7 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void GenerateHorizontalCuboidMesh(float Width, float Depth, float Height);
+	
 
 	UFUNCTION(BlueprintCallable, Category = Defauls)
 	void GenerateCylinder(float Radius, float Height, int32 Segments);
@@ -37,6 +37,7 @@ public:
 		float Radius,
 		float HalfHeight,
 		int32 Segments);
+	void GenerateCuboidMesh(float Width, float Depth, int32 Height);
 
 	UProceduralMeshComponent* ProcMeshComponent;
 };
