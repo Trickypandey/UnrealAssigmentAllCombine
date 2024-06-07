@@ -13,6 +13,7 @@ AAreaController::AAreaController()
 {
     PrimaryActorTick.bCanEverTick = true;
     bShowMouseCursor = true;
+    bIsMoving = true;
     //SelectionAreaClass = ASelectionArea::StaticClass();
 }
 
@@ -51,27 +52,42 @@ void AAreaController::ChangeLocation()
 {
     FHitResult HitResult;
     GetHitResultUnderCursor(ECC_Visibility, true, HitResult);
-    if (HitResult.bBlockingHit)
+    if (HitResult.bBlockingHit) 
     {
         FVector ClickLocation = HitResult.Location;
 
         if (ASelectionArea* ArchActor = Cast<ASelectionArea>(HitResult.GetActor())) {
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Clicked Location: X=%f, Y=%f, Z=%f"), ClickLocation.X, ClickLocation.Y, ClickLocation.Z));
             CurrentActor = ArchActor;
-            return;
+            bIsMoving = true;
+           
         }
         else
         {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Not An Actor: X=%f, Y=%f, Z=%f"), ClickLocation.X, ClickLocation.Y, ClickLocation.Z));
-            CurrentActor = nullptr;
+            if (CurrentActor->bIsSphere)
+            {
 
-        }
-
-        if (CurrentActor)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("in curretn actor : X=%f, Y=%f, Z=%f"), ClickLocation.X, ClickLocation.Y, ClickLocation.Z));
+                CurrentActor->SetActorLocation(FVector(ClickLocation.X, ClickLocation.Y, ClickLocation.Z + CurrentActor->MRadius * CurrentActor->GetActorScale3D().Z));
+            }
+            else
+            {
+                CurrentActor->SetActorRelativeLocation(ClickLocation);
+            }
             //CurrentActor->SetActorLocation(ClickLocation);
+            bIsMoving = false;
         }
+        //else
+        //{
+        //    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Not An Actor: X=%f, Y=%f, Z=%f"), ClickLocation.X, ClickLocation.Y, ClickLocation.Z));
+        //    //CurrentActor = nullptr;
+
+        //}
+
+        //if (CurrentActor)
+        //{
+        //    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("in curretn actor : X=%f, Y=%f, Z=%f"), ClickLocation.X, ClickLocation.Y, ClickLocation.Z));
+        //    //CurrentActor->SetActorLocation(ClickLocation);
+        //}
         
 
     }
@@ -80,13 +96,21 @@ void AAreaController::ChangeLocation()
 void AAreaController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (CurrentActor)
+	if (CurrentActor && bIsMoving)
 	{
 	    FVector WorldLocation, WorldDirection;
 	    DeprojectMousePositionToWorld(WorldLocation, WorldDirection);
 	    FVector NewLocation = WorldLocation + WorldDirection * 600.0f;
         NewLocation += FVector(10);
-	    CurrentActor->SetActorRelativeLocation(NewLocation);
+	    if (CurrentActor->bIsSphere)
+	    {
+		    
+			CurrentActor->SetActorRelativeLocation(NewLocation + CurrentActor->MRadius * CurrentActor->GetActorScale3D());
+	    }
+	    else
+	    {
+            CurrentActor->SetActorRelativeLocation(NewLocation);
+	    }
 		
 	}
 

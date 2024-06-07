@@ -59,7 +59,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Selection Area")
 	void UpdateMesh();
+	UFUNCTION(BlueprintCallable, Category = "Selection Area")
 	void GenerateCuboidMesh(float MLength, float MBreath, float MHeight);
+
+
+	UFUNCTION(BlueprintCallable, Category = "Selection Area")
 	void GenerateSphere(float Radius, int32 Segments, int32 Rings);
 
 

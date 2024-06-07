@@ -38,8 +38,11 @@ public:
 	virtual void Tick(float DeltaSeconds) override;  
 
 	virtual void BeginPlay() override;
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<ASelectionArea> SelectionAreaClass;
+	UPROPERTY()
+	bool bIsMoving;
 
 
 	
