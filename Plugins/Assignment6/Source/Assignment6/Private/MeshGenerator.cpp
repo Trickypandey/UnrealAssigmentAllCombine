@@ -18,7 +18,7 @@ void AMeshGenerator::BeginPlay()
 	Super::BeginPlay();
 	if (DataAsset)
 	{
-		UDataAsset* dAsset = DataAsset.Get();
+		UDataAsset* dAsset = DataAsset;
 
 	}
 
@@ -37,7 +37,7 @@ void AMeshGenerator::ScatterObjects(int N, FVector Scale_, FVector Location_, FS
 	Location = Location_;
 	Scale = Scale_;
 	Type = Type_;
-	if (Type == "Box") {
+	if (Type == "Cube") {
 
 		Location.Z += Scale.Z * 100;
 	}
@@ -105,6 +105,9 @@ void AMeshGenerator::OnConstruction(const FTransform& Transform)
 	Super::OnConstruction(Transform);
 
 }
+
+UFUNCTION(BlueprintImplementableEvent)
+	void UpdateProgressBar(float percent);
 
 void AMeshGenerator::FinishScatter()
 {

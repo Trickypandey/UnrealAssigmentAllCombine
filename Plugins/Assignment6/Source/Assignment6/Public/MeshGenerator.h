@@ -25,7 +25,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 	UPROPERTY(EditAnywhere, Category = "Scatter")
-	TSoftObjectPtr<UScatterDataAsset> DataAsset;
+	UScatterDataAsset* DataAsset;
 	UPROPERTY(EditAnywhere, Category = "Scatter")
 	FVector Location;
 	UPROPERTY(EditAnywhere, Category = "Scatter")
@@ -46,6 +46,9 @@ public:
 	void AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms);
 	void FinishScatter();
 	FAsyncTask<AsyncScatterTask>* mAsyncScatterTask;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateProgressBar(float percent);
 private:
 
 
