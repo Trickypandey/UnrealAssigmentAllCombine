@@ -16,19 +16,10 @@ void AsyncScatterTask::DoWork()
 		if (UScatterDataAsset* DataAsset = MeshGenerator->DataAsset)
 		{
 			TArray<UStaticMesh*> StaticMeshes = DataAsset->StaticMeshes;
-				
-
-			// ParallelFor(100, [](int32 ThreadIndex)
-			// {
-			// 	
-			// });
-			//
-
 
 
 			for (int jIndex = 0; jIndex < StaticMeshes.Num(); jIndex++)
 			{
-				//int32 RandomMeshIndex = FMath::RandRange(0, StaticMeshes.Num() - 1);
 				UStaticMesh* CurrentMesh = StaticMeshes[jIndex];
 
 
@@ -36,12 +27,9 @@ void AsyncScatterTask::DoWork()
 				for (int iIndex = 0; iIndex < MeshGenerator->NumberOfInstances; iIndex++)
 				{
 
-					/*FVector BoundingExtent = MeshGenerator->BoundingVolume->GetScaledBoxExtent();
-					FVector Origin = MeshGenerator->BoundingVolume->GetComponentLocation();
-					FBox BoundingBox(Origin - BoundingExtent, Origin + BoundingExtent);*/
-					//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "ahfdklagsdf");
 					FVector Position;
 					if (MeshGenerator->Type == "Cube") {
+						// BOX
 						FVector BoundingExtent = MeshGenerator->Scale * 100;
 						FVector Origin = MeshGenerator->Location;
 						FBox BoundingBox(Origin - BoundingExtent, Origin + BoundingExtent);
@@ -54,9 +42,8 @@ void AsyncScatterTask::DoWork()
 						FVector Origin = MeshGenerator->Location;
 						Position = FMath::VRand() * FMath::FRandRange(0.0f, Radius) + Origin;
 					}
-					float Progress = (float)(((jIndex)*MeshGenerator->NumberOfInstances) + (iIndex + 1)) / (float)(MeshGenerator->NumberOfInstances * DataAsset->StaticMeshes.Num());
+					float Progress = (float)(((jIndex)*MeshGenerator->NumberOfInstances) + (iIndex + 1)) / static_cast<float>(MeshGenerator->NumberOfInstances * DataAsset->StaticMeshes.Num());
 
-					//InstanceTransforms.Add(FTransform(Position));
 					TArray<FTransform> InstanceTransforms;
 					InstanceTransforms.Add(FTransform(Position));
 					MeshGenerator->AddInstances(CurrentMesh, InstanceTransforms);

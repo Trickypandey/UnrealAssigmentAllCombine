@@ -24,6 +24,28 @@ void AMeshGenerator::BeginPlay()
 
 }
 
+void AMeshGenerator::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+
+
+	if (mAsyncScatterTask)
+
+	{
+
+		if (!mAsyncScatterTask->IsDone()) {
+
+			mAsyncScatterTask->EnsureCompletion();
+
+		}
+
+		delete mAsyncScatterTask;
+
+		mAsyncScatterTask = nullptr;
+
+	}
+		Super::EndPlay(EndPlayReason);
+}
+
 // Called every frame
 void AMeshGenerator::Tick(float DeltaTime)
 {
@@ -73,27 +95,31 @@ void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransfo
 			UHierarchicalInstancedStaticMeshComponent** HISMCPtr = HISMComponents.Find(StaticMesh);
 				if (HISMCPtr && *HISMCPtr && (*HISMCPtr)->IsValidLowLevel())
 				{
-							(*HISMCPtr)->AddInstances(Transforms, false);
-							if (SlowTask)
-							{
-								SlowTask->EnterProgressFrame(Transforms.Num(), FText::FromString("Scattering Mesh : " + StaticMesh->GetName()));
-							}
+					(*HISMCPtr)->AddInstances(Transforms, false);
+					if (SlowTask)
+					{
+						SlowTask->EnterProgressFrame(Transforms.Num(), FText::FromString("Scattering Mesh : " + StaticMesh->GetName()));
+					}
 
 				}
 				else
 				{
 
 
-						UHierarchicalInstancedStaticMeshComponent* NewHISMC = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);
-						NewHISMC->SetStaticMesh(StaticMesh);
+					UHierarchicalInstancedStaticMeshComponent* NewHISMC = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);
+					NewHISMC->SetStaticMesh(StaticMesh);
 
-						HISMComponents.Add(StaticMesh, NewHISMC);
-							NewHISMC->RegisterComponentWithWorld(GetWorld());
-							NewHISMC->AddInstances(Transforms, false);
-							if (SlowTask)
-							{
-								SlowTask->EnterProgressFrame(Transforms.Num(), FText::FromString("Scattering Mesh : " + StaticMesh->GetName()));
-							}
+					HISMComponents.Add(StaticMesh, NewHISMC);
+						NewHISMC->RegisterComponentWithWorld(GetWorld());
+						NewHISMC->AddInstances(Transforms, false);
+						if (SlowTask)
+						{
+							SlowTask->EnterProgressFrame(Transforms.Num(), FText::FromString("Scattering Mesh : " + StaticMesh->GetName()));
+						}
+					if (Material)
+					{
+						NewHISMC->SetMaterial(0, Material);
+					}
 
 
 

@@ -11,6 +11,8 @@ public:
 	AsyncScatterTask(AMeshGenerator* MeshGenerator);
 
 	void DoWork();
+	
+		
 
 	FORCEINLINE TStatId GetStatId() const
 	{

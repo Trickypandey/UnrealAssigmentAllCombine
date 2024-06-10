@@ -38,14 +38,13 @@ void AAreaController::SetupEnhancedInputBindings()
     if (MappingContext) {
         MappingContext->MapKey(OnMouseHover, EKeys::LeftMouseButton);
 
+        if (auto* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>())
+
+	    {
+	        SubSystem->AddMappingContext(MappingContext, 0);
+	    }
     }
 
-    auto* SubSystem = GetLocalPlayer()->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
-    if (SubSystem)
-
-    {
-        SubSystem->AddMappingContext(MappingContext, 0);
-    }
 }
 
 void AAreaController::ChangeLocation()
@@ -54,7 +53,7 @@ void AAreaController::ChangeLocation()
     GetHitResultUnderCursor(ECC_Visibility, true, HitResult);
     if (HitResult.bBlockingHit) 
     {
-        FVector ClickLocation = HitResult.Location;
+	    const FVector ClickLocation = HitResult.Location;
 
         if (ASelectionArea* ArchActor = Cast<ASelectionArea>(HitResult.GetActor())) {
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Clicked Location: X=%f, Y=%f, Z=%f"), ClickLocation.X, ClickLocation.Y, ClickLocation.Z));
@@ -76,19 +75,6 @@ void AAreaController::ChangeLocation()
             //CurrentActor->SetActorLocation(ClickLocation);
             bIsMoving = false;
         }
-        //else
-        //{
-        //    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("Not An Actor: X=%f, Y=%f, Z=%f"), ClickLocation.X, ClickLocation.Y, ClickLocation.Z));
-        //    //CurrentActor = nullptr;
-
-        //}
-
-        //if (CurrentActor)
-        //{
-        //    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, FString::Printf(TEXT("in curretn actor : X=%f, Y=%f, Z=%f"), ClickLocation.X, ClickLocation.Y, ClickLocation.Z));
-        //    //CurrentActor->SetActorLocation(ClickLocation);
-        //}
-        
 
     }
 }
@@ -121,7 +107,7 @@ void AAreaController::BeginPlay()
 	Super::BeginPlay();
     if (SelectionAreaClass)
     {
-        FVector SpawnLocationActor = FVector(0.f, 0.f, 100.f); // Adjust Z value to make sure it's above the floor
+        FVector SpawnLocationActor = FVector(0.f, 0.f, 100.f);
         FRotator SpawnRotation = FRotator::ZeroRotator;
         FActorSpawnParameters SpawnParams;
         SpawnParams.Owner = this;

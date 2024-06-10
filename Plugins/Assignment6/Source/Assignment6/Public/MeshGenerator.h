@@ -19,6 +19,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	// Called every frame
@@ -33,6 +34,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Scatter")
 	FVector Scale;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Scatter")
+	UMaterial* Material;
 
 	UPROPERTY(EditAnywhere, Category = "Scatter")
 	int32 NumberOfInstances = 100;
