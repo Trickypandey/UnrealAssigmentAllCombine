@@ -37,6 +37,11 @@ void AMeshGenerator::ScatterObjects(int N, FVector Scale_, FVector Location_, FS
 	Location = Location_;
 	Scale = Scale_;
 	Type = Type_;
+	if (Type == "Box") {
+
+		Location.Z += Scale.Z * 100;
+	}
+
 	for (auto& Pair : HISMComponents)
 	{
 		if (UHierarchicalInstancedStaticMeshComponent* HISM = Pair.Value)
@@ -63,38 +68,37 @@ void AMeshGenerator::ScatterObjects(int N, FVector Scale_, FVector Location_, FS
 }
 void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms)
 {
-	UHierarchicalInstancedStaticMeshComponent** HISMCPtr = HISMComponents.Find(StaticMesh);
-	if (HISMCPtr && *HISMCPtr && (*HISMCPtr)->IsValidLowLevel())
-	{
-		AsyncTask(ENamedThreads::GameThread, [this, HISMCPtr, StaticMesh, Transforms]()
+		AsyncTask(ENamedThreads::GameThread, [this, StaticMesh, Transforms]()
 			{
-				(*HISMCPtr)->AddInstances(Transforms, false);
-				if (SlowTask)
+			UHierarchicalInstancedStaticMeshComponent** HISMCPtr = HISMComponents.Find(StaticMesh);
+				if (HISMCPtr && *HISMCPtr && (*HISMCPtr)->IsValidLowLevel())
 				{
-					SlowTask->EnterProgressFrame(Transforms.Num(), FText::FromString("Scattering Mesh : " + StaticMesh->GetName()));
+							(*HISMCPtr)->AddInstances(Transforms, false);
+							if (SlowTask)
+							{
+								SlowTask->EnterProgressFrame(Transforms.Num(), FText::FromString("Scattering Mesh : " + StaticMesh->GetName()));
+							}
+
+				}
+				else
+				{
+
+
+						UHierarchicalInstancedStaticMeshComponent* NewHISMC = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);
+						NewHISMC->SetStaticMesh(StaticMesh);
+
+						HISMComponents.Add(StaticMesh, NewHISMC);
+							NewHISMC->RegisterComponentWithWorld(GetWorld());
+							NewHISMC->AddInstances(Transforms, false);
+							if (SlowTask)
+							{
+								SlowTask->EnterProgressFrame(Transforms.Num(), FText::FromString("Scattering Mesh : " + StaticMesh->GetName()));
+							}
+
+
+
 				}
 			});
-	}
-	else
-	{
-		UHierarchicalInstancedStaticMeshComponent* NewHISMC = NewObject<UHierarchicalInstancedStaticMeshComponent>(this);
-		NewHISMC->SetStaticMesh(StaticMesh);
-
-		HISMComponents.Add(StaticMesh, NewHISMC);
-
-		AsyncTask(ENamedThreads::GameThread, [this, NewHISMC, StaticMesh, Transforms]()
-			{
-				NewHISMC->RegisterComponentWithWorld(GetWorld());
-				NewHISMC->AddInstances(Transforms, false);
-				if (SlowTask)
-				{
-					SlowTask->EnterProgressFrame(Transforms.Num(), FText::FromString("Scattering Mesh : " + StaticMesh->GetName()));
-				}
-			});
-
-
-
-	}
 }
 void AMeshGenerator::OnConstruction(const FTransform& Transform)
 {

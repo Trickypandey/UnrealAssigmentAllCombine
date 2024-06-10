@@ -36,13 +36,25 @@ void AsyncScatterTask::DoWork()
 				for (int iIndex = 0; iIndex < MeshGenerator->NumberOfInstances; iIndex++)
 				{
 
-					FVector BoundingExtent = MeshGenerator->BoundingVolume->GetScaledBoxExtent();
+					/*FVector BoundingExtent = MeshGenerator->BoundingVolume->GetScaledBoxExtent();
 					FVector Origin = MeshGenerator->BoundingVolume->GetComponentLocation();
-					FBox BoundingBox(Origin - BoundingExtent, Origin + BoundingExtent);
+					FBox BoundingBox(Origin - BoundingExtent, Origin + BoundingExtent);*/
+					FVector Position;
+					if (MeshGenerator->Type == "Box") {
+						FVector BoundingExtent = MeshGenerator->Scale * 100;
+						FVector Origin = MeshGenerator->Location;
+						FBox BoundingBox(Origin - BoundingExtent, Origin + BoundingExtent);
 
-					FVector Position = FMath::RandPointInBox(BoundingBox);
+						Position = FMath::RandPointInBox(BoundingBox);
+					}
+					else {
+						//Sphere
+						float Radius = MeshGenerator->Scale.Z * 100;
+						FVector Origin = MeshGenerator->Location;
+						Position = FMath::VRand() * FMath::FRandRange(0.0f, Radius) + Origin;
+					}
 					//InstanceTransforms.Add(FTransform(Position));
-
+					GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, "ahfdklagsdf");
 					TArray<FTransform> InstanceTransforms;
 					InstanceTransforms.Add(FTransform(Position));
 					MeshGenerator->AddInstances(CurrentMesh, InstanceTransforms);
