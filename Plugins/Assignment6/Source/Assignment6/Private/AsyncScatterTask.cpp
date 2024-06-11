@@ -11,7 +11,7 @@ AsyncScatterTask::AsyncScatterTask(AMeshGenerator* MeshGenerator)
 
 void AsyncScatterTask::DoWork()
 {
-	if (MeshGenerator)
+	if (IsValid(MeshGenerator) && MeshGenerator)
 	{
 		if (UScatterDataAsset* DataAsset = MeshGenerator->DataAsset)
 		{
@@ -24,7 +24,7 @@ void AsyncScatterTask::DoWork()
 
 
 
-				for (int iIndex = 0; iIndex < MeshGenerator->NumberOfInstances; iIndex++)
+				for (int iIndex = 0;  IsValid(MeshGenerator) && iIndex < MeshGenerator->NumberOfInstances; iIndex++)
 				{
 
 					FVector Position;

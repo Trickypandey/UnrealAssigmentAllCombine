@@ -24,27 +24,27 @@ void AMeshGenerator::BeginPlay()
 
 }
 
-void AMeshGenerator::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-
-
-	if (mAsyncScatterTask)
-
-	{
-
-		if (!mAsyncScatterTask->IsDone()) {
-
-			mAsyncScatterTask->EnsureCompletion();
-
-		}
-
-		delete mAsyncScatterTask;
-
-		mAsyncScatterTask = nullptr;
-
-	}
-		Super::EndPlay(EndPlayReason);
-}
+//void AMeshGenerator::EndPlay(const EEndPlayReason::Type EndPlayReason)
+//{
+//
+//
+//	if (mAsyncScatterTask)
+//
+//	{
+//
+//		if (!mAsyncScatterTask->IsDone()) {
+//
+//			mAsyncScatterTask->EnsureCompletion();
+//
+//		}
+//
+//		delete mAsyncScatterTask;
+//
+//		mAsyncScatterTask = nullptr;
+//
+//	}
+//		Super::EndPlay(EndPlayReason);
+//}
 
 // Called every frame
 void AMeshGenerator::Tick(float DeltaTime)
@@ -72,11 +72,11 @@ void AMeshGenerator::ScatterObjects(int N, FVector Scale_, FVector Location_, FS
 		}
 	}
 
-	if (DataAsset)
-	{
-		SlowTask = new FScopedSlowTask(NumberOfInstances * DataAsset->StaticMeshes.Num(), FText::FromString("Scattering Objects..."));
-		SlowTask->MakeDialog(true);
-	}
+	//if (DataAsset)
+	//{
+	//	SlowTask = new FScopedSlowTask(NumberOfInstances * DataAsset->StaticMeshes.Num(), FText::FromString("Scattering Objects..."));
+	//	SlowTask->MakeDialog(true);
+	//}
 
 	if (mAsyncScatterTask && !mAsyncScatterTask->IsDone())
 	{
@@ -89,9 +89,15 @@ void AMeshGenerator::ScatterObjects(int N, FVector Scale_, FVector Location_, FS
 	mAsyncScatterTask->StartBackgroundTask();
 }
 void AMeshGenerator::AddInstances(UStaticMesh* StaticMesh, const TArray<FTransform>& Transforms)
+
 {
+	if (!this || !IsValid(this))
+	{
+		return;
+	}
 		AsyncTask(ENamedThreads::GameThread, [this, StaticMesh, Transforms]()
 			{
+			
 			UHierarchicalInstancedStaticMeshComponent** HISMCPtr = HISMComponents.Find(StaticMesh);
 				if (HISMCPtr && *HISMCPtr && (*HISMCPtr)->IsValidLowLevel())
 				{
